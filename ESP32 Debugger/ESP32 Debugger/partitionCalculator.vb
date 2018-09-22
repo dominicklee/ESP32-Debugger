@@ -19,22 +19,18 @@ Public Class partitionCalculator
         ListBox3.Items.Clear()
         ListBox4.Items.Clear()
 
-        names.AddRange(New String() {"nvs", "otadata", "app0", "app1", "eeprom", "spiffs"})
         For Each item In names
             ListBox1.Items.Add(item)
         Next
 
-        types.AddRange(New String() {"data, nvs", "data, ota", "app, ota_0", "app, ota_1", "data, 0x99", "data, spiffs"})
         For Each item In types
             ListBox2.Items.Add(item)
         Next
 
-        offsets.AddRange(New String() {"0x9000", "0xe000", "0x10000", "0x1A0000", "0x330000", "0x331000"})
         For Each item In offsets
             ListBox3.Items.Add(item)
         Next
 
-        sizes.AddRange(New String() {"0x5000", "0x2000", "0x190000", "0x190000", "0x1000", "0x0CF000"})
         For Each item In sizes
             ListBox4.Items.Add(item)
         Next
@@ -42,6 +38,11 @@ Public Class partitionCalculator
     End Sub
 
     Private Sub partitionCalculator_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        names.AddRange(New String() {"nvs", "otadata", "app0", "app1", "eeprom", "spiffs"})
+        types.AddRange(New String() {"data, nvs", "data, ota", "app, ota_0", "app, ota_1", "data, 0x99", "data, spiffs"})
+        offsets.AddRange(New String() {"0x9000", "0xe000", "0x10000", "0x1A0000", "0x330000", "0x331000"})
+        sizes.AddRange(New String() {"0x5000", "0x2000", "0x190000", "0x190000", "0x1000", "0x0CF000"})
+
         resetLists()
         calculateStorage()
     End Sub
@@ -72,6 +73,7 @@ Public Class partitionCalculator
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         resetLists()
+        MsgBox("Partitions reset!")
         calculateStorage()
 
     End Sub
@@ -202,8 +204,8 @@ Public Class partitionCalculator
         For curIndx As Integer = 1 To ListBox3.Items.Count - 1
 
             'We look for (n-1)offset + (n-1)size. Then round it to the nearest 4096 (or 0x1000)
-            Dim prevOffset As Integer = Convert.ToInt32(ListBox3.Items.Item(curIndx - 1), 16)  'get prev offset bytes
-            Dim prevSize As Integer = Convert.ToInt32(ListBox4.Items.Item(curIndx - 1), 16)    'get prev size bytes
+            Dim prevOffset As Long = Convert.ToInt32(ListBox3.Items.Item(curIndx - 1), 16)  'get prev offset bytes
+            Dim prevSize As Long = Convert.ToInt32(ListBox4.Items.Item(curIndx - 1), 16)    'get prev size bytes
 
             Dim X As Long = prevOffset + prevSize
             Dim N As Integer = 4096    'rounding factor
@@ -213,6 +215,22 @@ Public Class partitionCalculator
             Dim hexS As String = "0x" & offsetCap.ToString("X4")
             ListBox3.Items.Item(curIndx) = hexS
 
+            'MsgBox(prevOffset & " + " & prevSize & " = " & X & vbNewLine & "Rounded to " & offsetCap & vbNewLine & "Which is " & hexS)
+
         Next
+    End Sub
+
+    Private Sub ListBox3_DoubleClick(sender As Object, e As EventArgs) Handles ListBox3.DoubleClick
+        Dim Bs As Double = Convert.ToInt32(ListBox3.SelectedItem, 16)
+        MsgBox("This offset is at " & Bs & " bytes.")
+    End Sub
+
+    Private Sub btnGenerate_Click(sender As Object, e As EventArgs) Handles btnGenerate.Click
+        RichTextBox1.Text = "# Name, Type, SubType, Offset, Size, Flags" & vbNewLine
+
+        For curRow As Integer = 0 To ListBox1.Items.Count - 1
+            RichTextBox1.AppendText(ListBox1.Items.Item(curRow) & ",    " & ListBox2.Items.Item(curRow) & ",    " & ListBox3.Items.Item(curRow) & ",    " & ListBox4.Items.Item(curRow) & ",    " & vbNewLine)
+        Next
+
     End Sub
 End Class

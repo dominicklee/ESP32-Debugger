@@ -104,6 +104,7 @@ Partial Class partitionCalculator
         Me.RichTextBox1.Size = New System.Drawing.Size(460, 111)
         Me.RichTextBox1.TabIndex = 10
         Me.RichTextBox1.Text = ""
+        Me.RichTextBox1.WordWrap = False
         '
         'btnPartitionSave
         '
